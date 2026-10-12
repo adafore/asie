@@ -1796,7 +1796,9 @@ html&gt;body{padding:0}&lt;/style&gt;
     #asia-study-map .asia-svg { width:100%; display:block; touch-action:none; background:color-mix(in srgb, var(--muted) 38%, transparent); }
     #asia-study-map .context { fill:var(--muted); stroke:var(--border); stroke-width:.6; vector-effect:non-scaling-stroke; }
     #asia-study-map .country { fill:var(--secondary); stroke:var(--foreground); stroke-opacity:.5; stroke-width:.65; vector-effect:non-scaling-stroke; }
-    #asia-study-map .country-target.is-active .country, #asia-study-map .country-target:focus-visible .country { fill:color-mix(in srgb, var(--viz-series-1) 32%, var(--secondary)); stroke:var(--foreground); stroke-opacity:1; }
+    #asia-study-map .country-target, #asia-study-map .country-target:focus, #asia-study-map .country-target:focus-visible { outline:none; -webkit-tap-highlight-color:transparent; }
+    #asia-study-map .country-target.is-active .country, #asia-study-map .country-target.keyboard-focus .country { fill:color-mix(in srgb, var(--viz-series-1) 32%, var(--secondary)); stroke:var(--foreground); stroke-opacity:1; }
+    #asia-study-map .country-target.keyboard-focus .country { stroke-width:2; }
     #asia-study-map .grid { fill:none; stroke:var(--border); stroke-width:.5; stroke-opacity:.45; vector-effect:non-scaling-stroke; pointer-events:none; }
     #asia-study-map .small-hit { fill:transparent; stroke:none; }
     #asia-study-map .capital-halo { fill:var(--background); stroke:var(--viz-series-1); stroke-width:1.5; }
@@ -1807,30 +1809,17 @@ html&gt;body{padding:0}&lt;/style&gt;
     #asia-study-map .label-capital { display:block; }
     #asia-study-map .label-note { display:block; max-width:320px; margin-top:4px; }
     #asia-study-map .label-note:empty { display:none; }
-    #asia-study-map .micro-select { max-width:230px; }
-    @media(max-width:480px) { #asia-study-map .map-heading { gap:8px; } #asia-study-map .map-tools { width:100%; flex-wrap:wrap; } }
+    @media(max-width:480px) { #asia-study-map .map-heading { gap:8px; } }
   &lt;/style&gt;
   &lt;div class=&quot;map-heading&quot;&gt;
     &lt;h2&gt;Asie · slepá mapa&lt;/h2&gt;
     &lt;div class=&quot;map-tools&quot;&gt;
       &lt;button type=&quot;button&quot; class=&quot;btn btn-ghost&quot; data-zoom=&quot;in&quot; aria-label=&quot;Přiblížit mapu&quot;&gt;+&lt;/button&gt;
       &lt;button type=&quot;button&quot; class=&quot;btn btn-ghost&quot; data-zoom=&quot;out&quot; aria-label=&quot;Oddálit mapu&quot;&gt;−&lt;/button&gt;
-      &lt;label class=&quot;sr-only&quot; for=&quot;asia-micro-country&quot;&gt;Malé státy a ostrovy&lt;/label&gt;
-      &lt;select id=&quot;asia-micro-country&quot; class=&quot;form-select micro-select&quot; aria-label=&quot;Malé státy a ostrovy&quot;&gt;
-        &lt;option value=&quot;&quot;&gt;Malé státy a ostrovy…&lt;/option&gt;
-        &lt;option value=&quot;BHR&quot;&gt;Bahrajn&lt;/option&gt;
-        &lt;option value=&quot;BRN&quot;&gt;Brunej&lt;/option&gt;
-        &lt;option value=&quot;KWT&quot;&gt;Kuvajt&lt;/option&gt;
-        &lt;option value=&quot;MDV&quot;&gt;Maledivy&lt;/option&gt;
-        &lt;option value=&quot;PSX&quot;&gt;Palestina&lt;/option&gt;
-        &lt;option value=&quot;QAT&quot;&gt;Katar&lt;/option&gt;
-        &lt;option value=&quot;SGP&quot;&gt;Singapur&lt;/option&gt;
-        &lt;option value=&quot;TLS&quot;&gt;Východní Timor&lt;/option&gt;
-      &lt;/select&gt;
     &lt;/div&gt;
   &lt;/div&gt;
   &lt;div class=&quot;map-area&quot;&gt;
-    &lt;svg class=&quot;asia-svg&quot; viewBox=&quot;0 0 1000 670&quot; role=&quot;group&quot; aria-label=&quot;Interaktivní slepá mapa Asie. Najeď na stát nebo ho vyber klávesou Tab. Kolečkem přibližuj, tažením posouvej.&quot;&gt;
+    &lt;svg class=&quot;asia-svg&quot; viewBox=&quot;0 0 1000 670&quot; role=&quot;group&quot; aria-label=&quot;Interaktivní slepá mapa Asie. Najeď na stát nebo ho vyber klávesou Tab. Kolečkem nebo dvěma prsty přibližuj a oddaluj, tažením posouvej.&quot;&gt;
       &lt;desc&gt;Při najetí na stát se zobrazí tečka hlavního města. Název se odhalí až poblíž tečky. Na dotykové obrazovce klepni na stát; klávesnicí stiskni Enter. Tečka označuje skutečnou zeměpisnou polohu hlavního města.&lt;/desc&gt;
       &lt;defs&gt;&lt;clipPath id=&quot;asia-map-clip&quot;&gt;&lt;rect width=&quot;1000&quot; height=&quot;670&quot; /&gt;&lt;/clipPath&gt;&lt;/defs&gt;
       &lt;g clip-path=&quot;url(#asia-map-clip)&quot;&gt;
@@ -1850,7 +1839,8 @@ html&gt;body{padding:0}&lt;/style&gt;
     const marker=root.querySelector(&#x27;.capital-marker&#x27;),label=root.querySelector(&#x27;.city-label&#x27;),countryText=root.querySelector(&#x27;.label-country&#x27;),capitalText=root.querySelector(&#x27;.label-capital&#x27;),note=root.querySelector(&#x27;.label-note&#x27;),announcement=root.querySelector(&#x27;.selection-announcement&#x27;);
     const byId=new Map(data.countries.map(c=&gt;[c.id,c]));
     const elements=new Map();
-    let selected=null,pinned=null,pinnedReveal=false,revealed=false,lastPointerType=&#x27;mouse&#x27;,k=1,tx=0,ty=0,drag=null,moved=false;
+    const minZoom=.35,maxZoom=18,pointers=new Map();
+    let selected=null,pinned=null,pinnedReveal=false,revealed=false,lastPointerType=&#x27;mouse&#x27;,keyboardInput=false,k=1,tx=0,ty=0,drag=null,gesture=null,moved=false,suppressClick=false;
     const touchInput=()=&gt;window.matchMedia(&#x27;(hover: none), (pointer: coarse)&#x27;).matches;
     function element(tag,attrs){const el=document.createElementNS(NS,tag);Object.entries(attrs).forEach(([key,value])=&gt;el.setAttribute(key,value));return el;}
     data.context.forEach(d=&gt;root.querySelector(&#x27;.context-layer&#x27;).appendChild(element(&#x27;path&#x27;,{d,class:&#x27;context&#x27;})));
@@ -1860,10 +1850,10 @@ html&gt;body{padding:0}&lt;/style&gt;
       g.appendChild(element(&#x27;path&#x27;,{d:c.path,class:&#x27;country&#x27;}));
       // Invisible, slightly larger hit areas help with isolated microstates.
       if([&#x27;BHR&#x27;,&#x27;SGP&#x27;,&#x27;MDV&#x27;,&#x27;BRN&#x27;,&#x27;QAT&#x27;,&#x27;TLS&#x27;].includes(c.id))g.appendChild(element(&#x27;circle&#x27;,{cx:c.hit[0],cy:c.hit[1],r:5,class:&#x27;small-hit&#x27;}));
-      g.addEventListener(&#x27;pointerenter&#x27;,e=&gt;{if(!drag&amp;&amp;e.pointerType!==&#x27;touch&#x27;&amp;&amp;!touchInput()&amp;&amp;!closeToCapital(e))show(c.id,false);});
-      g.addEventListener(&#x27;focus&#x27;,()=&gt;{show(c.id);ensureVisible(c);});
-      g.addEventListener(&#x27;blur&#x27;,()=&gt;show(pinned,pinnedReveal));
-      g.addEventListener(&#x27;click&#x27;,e=&gt;{if(moved)return;e.stopPropagation();pinned=c.id;pinnedReveal=e.pointerType===&#x27;touch&#x27;||lastPointerType===&#x27;touch&#x27;||touchInput()||e.detail===0;show(c.id,pinnedReveal||closeToCapital(e,c));announce();save();});
+      g.addEventListener(&#x27;pointerenter&#x27;,e=&gt;{if(!drag&amp;&amp;!gesture&amp;&amp;e.pointerType!==&#x27;touch&#x27;&amp;&amp;!touchInput()&amp;&amp;!closeToCapital(e))show(c.id,false);});
+      g.addEventListener(&#x27;focus&#x27;,()=&gt;{g.classList.toggle(&#x27;keyboard-focus&#x27;,keyboardInput);show(c.id);if(keyboardInput)ensureVisible(c);});
+      g.addEventListener(&#x27;blur&#x27;,()=&gt;{g.classList.remove(&#x27;keyboard-focus&#x27;);show(pinned,pinnedReveal);});
+      g.addEventListener(&#x27;click&#x27;,e=&gt;{if(moved||suppressClick)return;e.stopPropagation();pinned=c.id;pinnedReveal=e.pointerType===&#x27;touch&#x27;||lastPointerType===&#x27;touch&#x27;||touchInput()||e.detail===0;show(c.id,pinnedReveal||closeToCapital(e,c));announce();save();});
       g.addEventListener(&#x27;keydown&#x27;,e=&gt;{if(e.key===&#x27;Enter&#x27;||e.key===&#x27; &#x27;){e.preventDefault();pinned=c.id;pinnedReveal=true;show(c.id,true);announce();save();}if(e.key===&#x27;Escape&#x27;){pinned=null;pinnedReveal=false;show(null);announce();save();}});
       countries.appendChild(g);elements.set(c.id,g);
     });
@@ -1904,21 +1894,58 @@ html&gt;body{padding:0}&lt;/style&gt;
       label.style.left=Math.max(8,Math.min(w-lw-8,left))+&#x27;px&#x27;;label.style.top=Math.max(8,Math.min(h-lh-8,top))+&#x27;px&#x27;;
     }
     function transform(){layer.setAttribute(&#x27;transform&#x27;,`translate(${tx},${ty}) scale(${k})`);placeMarker();}
-    function zoom(factor,x=500,y=335){const nk=Math.max(1,Math.min(18,k*factor));tx=x-(x-tx)*nk/k;ty=y-(y-ty)*nk/k;k=nk;if(k===1){tx=0;ty=0;}transform();}
+    function zoom(factor,x=500,y=335){const nk=Math.max(minZoom,Math.min(maxZoom,k*factor));tx=x-(x-tx)*nk/k;ty=y-(y-ty)*nk/k;k=nk;transform();}
     function coords(e){const rect=svg.getBoundingClientRect();return [(e.clientX-rect.left)/rect.width*1000,(e.clientY-rect.top)/rect.height*670];}
     function ensureVisible(c){const x=c.point[0]*k+tx,y=c.point[1]*k+ty;if(x&lt;15||x&gt;985||y&lt;15||y&gt;655){tx=500-c.point[0]*k;ty=335-c.point[1]*k;transform();}}
+    root.addEventListener(&#x27;keydown&#x27;,()=&gt;{keyboardInput=true;},{capture:true});
+    root.addEventListener(&#x27;pointerdown&#x27;,()=&gt;{keyboardInput=false;elements.forEach(g=&gt;g.classList.remove(&#x27;keyboard-focus&#x27;));},{capture:true});
+    function startPinch(){
+      const pair=Array.from(pointers.entries()).slice(0,2);
+      const a=pair[0][1],b=pair[1][1],center=[(a[0]+b[0])/2,(a[1]+b[1])/2];
+      gesture={ids:pair.map(p=&gt;p[0]),distance:Math.max(1,Math.hypot(a[0]-b[0],a[1]-b[1])),scale:k,anchor:[(center[0]-tx)/k,(center[1]-ty)/k]};
+      drag=null;moved=true;suppressClick=true;
+      gesture.ids.forEach(id=&gt;svg.setPointerCapture(id));
+    }
     svg.addEventListener(&#x27;wheel&#x27;,e=&gt;{e.preventDefault();zoom(Math.exp(-e.deltaY*.0015),...coords(e));},{passive:false});
-    svg.addEventListener(&#x27;pointerdown&#x27;,e=&gt;{lastPointerType=e.pointerType||&#x27;mouse&#x27;;if(e.button!==0)return;drag={id:e.pointerId,start:coords(e),x:tx,y:ty};moved=false;});
-    svg.addEventListener(&#x27;pointermove&#x27;,e=&gt;{lastPointerType=e.pointerType||&#x27;mouse&#x27;;if(!drag){hover(e);return;}if(e.pointerId!==drag.id)return;const p=coords(e),dx=p[0]-drag.start[0],dy=p[1]-drag.start[1];if(Math.hypot(dx,dy)&gt;4)moved=true;if(moved){svg.setPointerCapture(e.pointerId);tx=drag.x+dx;ty=drag.y+dy;transform();}});
-    svg.addEventListener(&#x27;pointerup&#x27;,e=&gt;{if(drag?.id===e.pointerId){if(svg.hasPointerCapture(e.pointerId))svg.releasePointerCapture(e.pointerId);drag=null;}});
-    svg.addEventListener(&#x27;pointercancel&#x27;,()=&gt;{drag=null;});
-    svg.addEventListener(&#x27;click&#x27;,e=&gt;{if(moved){moved=false;return;}if(!e.target.closest(&#x27;[data-country]&#x27;)){pinned=null;pinnedReveal=false;show(null);announce();save();}});
-    svg.addEventListener(&#x27;pointerleave&#x27;,()=&gt;{if(!drag)show(pinned,pinnedReveal);});
-    root.querySelectorAll(&#x27;[data-zoom]&#x27;).forEach(btn=&gt;btn.addEventListener(&#x27;click&#x27;,()=&gt;zoom(btn.dataset.zoom===&#x27;in&#x27;?1.6:1/1.6)));
-    root.querySelector(&#x27;.micro-select&#x27;).addEventListener(&#x27;change&#x27;,e=&gt;{const c=byId.get(e.target.value);if(!c)return;k=Math.max(k,5);tx=500-c.hit[0]*k;ty=335-c.hit[1]*k;pinned=c.id;pinnedReveal=touchInput();show(c.id,pinnedReveal);transform();announce();save();});
+    svg.addEventListener(&#x27;pointerdown&#x27;,e=&gt;{
+      lastPointerType=e.pointerType||&#x27;mouse&#x27;;if(e.button!==0)return;
+      if(!pointers.size){moved=false;suppressClick=false;}
+      const p=coords(e);pointers.set(e.pointerId,p);
+      if(pointers.size&gt;=2){startPinch();return;}
+      drag={id:e.pointerId,start:p,x:tx,y:ty};
+    });
+    svg.addEventListener(&#x27;pointermove&#x27;,e=&gt;{
+      lastPointerType=e.pointerType||&#x27;mouse&#x27;;const p=coords(e);
+      if(pointers.has(e.pointerId))pointers.set(e.pointerId,p);
+      if(gesture){
+        const a=pointers.get(gesture.ids[0]),b=pointers.get(gesture.ids[1]);if(!a||!b)return;
+        const center=[(a[0]+b[0])/2,(a[1]+b[1])/2],distance=Math.hypot(a[0]-b[0],a[1]-b[1]);
+        k=Math.max(minZoom,Math.min(maxZoom,gesture.scale*distance/gesture.distance));
+        tx=center[0]-gesture.anchor[0]*k;ty=center[1]-gesture.anchor[1]*k;transform();return;
+      }
+      if(!drag){hover(e);return;}if(e.pointerId!==drag.id)return;
+      const dx=p[0]-drag.start[0],dy=p[1]-drag.start[1];if(Math.hypot(dx,dy)&gt;4){moved=true;suppressClick=true;}
+      if(moved){svg.setPointerCapture(e.pointerId);tx=drag.x+dx;ty=drag.y+dy;transform();}
+    });
+    function endPointer(e){
+      if(!pointers.has(e.pointerId))return;
+      pointers.delete(e.pointerId);if(svg.hasPointerCapture(e.pointerId))svg.releasePointerCapture(e.pointerId);
+      if(gesture){
+        if(pointers.size&gt;=2){startPinch();return;}
+        gesture=null;
+        const remaining=Array.from(pointers.entries())[0];
+        drag=remaining?{id:remaining[0],start:remaining[1],x:tx,y:ty}:null;
+      }else if(drag?.id===e.pointerId)drag=null;
+      if(!pointers.size&amp;&amp;moved)save();
+    }
+    svg.addEventListener(&#x27;pointerup&#x27;,endPointer);
+    svg.addEventListener(&#x27;pointercancel&#x27;,endPointer);
+    svg.addEventListener(&#x27;click&#x27;,e=&gt;{if(moved||suppressClick){if(!pointers.size){moved=false;suppressClick=false;}e.preventDefault();return;}if(!e.target.closest(&#x27;[data-country]&#x27;)){pinned=null;pinnedReveal=false;show(null);announce();save();}});
+    svg.addEventListener(&#x27;pointerleave&#x27;,()=&gt;{if(!drag&amp;&amp;!gesture)show(pinned,pinnedReveal);});
+    root.querySelectorAll(&#x27;[data-zoom]&#x27;).forEach(btn=&gt;btn.addEventListener(&#x27;click&#x27;,()=&gt;{zoom(btn.dataset.zoom===&#x27;in&#x27;?1.6:1/1.6);save();}));
     const resize=new ResizeObserver(placeMarker);resize.observe(svg);
-    function save(){if(window.openai?.setWidgetState)window.openai.setWidgetState({modelContent:{country:selected?byId.get(selected).name:null,capital:selected&amp;&amp;revealed?byId.get(selected).capital:null},privateContent:{version:2,pinned,pinnedReveal,k,tx,ty}}).catch(()=&gt;{});}
-    function restore(state){const p=state?.privateContent;if(p?.version!==2)return;if(Number.isFinite(p.k)&amp;&amp;p.k&gt;=1&amp;&amp;p.k&lt;=18&amp;&amp;Number.isFinite(p.tx)&amp;&amp;Number.isFinite(p.ty)){k=p.k;tx=p.tx;ty=p.ty;}pinned=byId.has(p.pinned)?p.pinned:null;pinnedReveal=Boolean(p.pinnedReveal);show(pinned,pinnedReveal);transform();}
+    function save(){if(window.openai?.setWidgetState)window.openai.setWidgetState({modelContent:{country:selected?byId.get(selected).name:null,capital:selected&amp;&amp;revealed?byId.get(selected).capital:null},privateContent:{version:3,pinned,pinnedReveal,k,tx,ty}}).catch(()=&gt;{});}
+    function restore(state){const p=state?.privateContent;if(p?.version!==3)return;if(Number.isFinite(p.k)&amp;&amp;p.k&gt;=minZoom&amp;&amp;p.k&lt;=maxZoom&amp;&amp;Number.isFinite(p.tx)&amp;&amp;Number.isFinite(p.ty)){k=p.k;tx=p.tx;ty=p.ty;}pinned=byId.has(p.pinned)?p.pinned:null;pinnedReveal=Boolean(p.pinnedReveal);show(pinned,pinnedReveal);transform();}
     restore(window.openai?.widgetState);
     window.addEventListener(&#x27;openai:set_globals&#x27;,e=&gt;restore(e.detail?.globals?.widgetState));
   })();
